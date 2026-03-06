@@ -12,7 +12,6 @@ Complete step-by-step guide for setting up and demonstrating the entire project.
 6. [Set Up CI/CD Pipeline with Tekton](#6-set-up-cicd-pipeline-with-tekton)
 7. [Configure Monitoring](#7-configure-monitoring)
 8. [Cleanup](#8-cleanup)
-9. [Interview Talking Points](#9-interview-talking-points)
 
 ---
 
@@ -353,25 +352,3 @@ terraform destroy
 
 # Type 'yes' to confirm
 ```
-
----
-
-## 9. Interview Talking Points
-
-### Infrastructure as Code
-> "I used Terraform to provision the entire GCP infrastructure - VPC, firewall rules, and two RHEL VMs. This ensures reproducibility and version control of the infrastructure."
-
-### RHEL Administration
-> "On the RHEL VM, I demonstrated user and group management with proper sudo policies, firewalld zone configuration with rich rules for rate limiting, SELinux in enforcing mode with custom file contexts, and systemd service management including custom timers."
-
-### Container Platform
-> "I deployed CodeReady Containers on GCP with nested virtualization to run a full OpenShift cluster. The demo app is a Python Flask API containerized using Red Hat UBI base image, deployed with proper health checks and resource limits."
-
-### CI/CD
-> "The Tekton pipeline automates the build-test-deploy cycle: it builds the container image using OpenShift's built-in BuildConfig, deploys the updated manifests, and runs a smoke test to verify the deployment."
-
-### Monitoring
-> "I configured Prometheus to scrape custom application metrics via ServiceMonitor, and created a Grafana dashboard showing uptime, request rates, and resource usage per pod."
-
-### Troubleshooting Methodology
-> "When diagnosing issues, I follow a systematic approach: check service status with systemctl, review logs with journalctl, analyze SELinux denials with ausearch, verify network with ss and firewall-cmd, and check resources with free/df/top."
