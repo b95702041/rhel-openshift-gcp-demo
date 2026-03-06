@@ -2,7 +2,7 @@
 # cloud-init script for RHEL Admin VM
 # This script sets up a RHEL environment for system administration exercises
 
-set -euo pipefail
+set -uo pipefail
 exec > /var/log/rhel-init.log 2>&1
 
 echo "=========================================="
@@ -12,13 +12,19 @@ echo "=========================================="
 # ------------------------------------------
 # 1. System update
 # ------------------------------------------
-echo "[1/5] Updating system packages..."
+echo "[1/6] Updating system packages..."
 dnf update -y
 
 # ------------------------------------------
-# 2. Install essential admin tools
+# 2. Enable EPEL repository (needed for htop and other tools)
 # ------------------------------------------
-echo "[2/5] Installing admin tools..."
+echo "[2/6] Enabling EPEL repository..."
+dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm || true
+
+# ------------------------------------------
+# 3. Install essential admin tools
+# ------------------------------------------
+echo "[3/6] Installing admin tools..."
 dnf install -y \
   vim \
   tmux \
@@ -38,7 +44,7 @@ dnf install -y \
 # ------------------------------------------
 # 3. Enable and configure firewalld
 # ------------------------------------------
-echo "[3/5] Configuring firewalld..."
+echo "[4/6] Configuring firewalld..."
 systemctl enable --now firewalld
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --permanent --add-service=http
@@ -48,14 +54,14 @@ firewall-cmd --reload
 # ------------------------------------------
 # 4. Ensure SELinux is enforcing
 # ------------------------------------------
-echo "[4/5] Verifying SELinux..."
+echo "[5/6] Verifying SELinux..."
 setenforce 1 || true
 sed -i 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config
 
 # ------------------------------------------
 # 5. Create a practice service for systemd lab
 # ------------------------------------------
-echo "[5/5] Creating practice systemd service..."
+echo "[6/6] Creating practice systemd service..."
 
 cat > /usr/local/bin/demo-healthcheck.sh << 'SCRIPT'
 #!/bin/bash

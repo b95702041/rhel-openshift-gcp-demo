@@ -151,11 +151,11 @@ resource "google_compute_instance" "openshift_crc" {
   }
 
   scheduling {
-    # Required: Intel Haswell or later for nested virtualization
+    # Required: Intel Cascade Lake or later for N2 series nested virtualization
     min_node_cpus = 0
   }
 
-  min_cpu_platform = "Intel Haswell"
+  min_cpu_platform = "Intel Cascade Lake"
 
   labels = {
     purpose = "openshift-crc-demo"
