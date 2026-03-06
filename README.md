@@ -10,7 +10,7 @@ A hands-on demo project showcasing Red Hat Enterprise Linux (RHEL) system admini
 │                                                  │
 │  ┌──────────────────┐  ┌──────────────────────┐  │
 │  │  VM1: RHEL Admin │  │  VM2: OpenShift CRC  │  │
-│  │  (e2-medium)     │  │  (e2-standard-8)     │  │
+│  │  (e2-medium)     │  │  (n2-standard-8)     │  │
 │  │                  │  │                       │  │
 │  │  - User Mgmt     │  │  - Demo Flask App     │  │
 │  │  - Firewalld     │  │  - Tekton CI/CD       │  │
