@@ -1,0 +1,33 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-and-push
+spec:
+  params:
+    - name: APP_NAME
+      type: string
+      default: demo-api
+  steps:
+    # Step 1: Start OpenShift build from local source
+    - name: build-image
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/bin/bash
+        set -e
+        echo "=== Starting OpenShift build for $(params.APP_NAME) ==="
+        oc start-build $(params.APP_NAME) --from-dir=/workspace/source --wait --follow
+        echo "=== Build complete ==="
+
+    # Step 2: Verify the new image exists
+    - name: verify-image
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/bin/bash
+        set -e
+        echo "=== Verifying image ==="
+        oc get istag $(params.APP_NAME):latest
+        echo "=== Image verified ==="
+
+  workspaces:
+    - name: source
+      description: Source code directory

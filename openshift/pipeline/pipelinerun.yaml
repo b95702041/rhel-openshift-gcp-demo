@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: demo-api-pipeline-run-
+spec:
+  pipelineRef:
+    name: demo-api-pipeline
+  params:
+    - name: APP_NAME
+      value: demo-api
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi

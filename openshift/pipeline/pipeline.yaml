@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: demo-api-pipeline
+spec:
+  params:
+    - name: APP_NAME
+      type: string
+      default: demo-api
+  workspaces:
+    - name: shared-workspace
+
+  tasks:
+    # Stage 1: Build container image
+    - name: build
+      taskRef:
+        name: build-and-push
+      params:
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+
+    # Stage 2: Deploy to OpenShift
+    - name: deploy
+      taskRef:
+        name: deploy-app
+      params:
+        - name: APP_NAME
+          value: $(params.APP_NAME)
+      workspaces:
+        - name: source
+          workspace: shared-workspace
+      runAfter:
+        - build

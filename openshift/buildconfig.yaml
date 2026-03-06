@@ -1,0 +1,34 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: demo-api
+  labels:
+    app: demo-api
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: demo-api:latest
+  source:
+    type: Dockerfile
+    dockerfile: |
+      FROM registry.access.redhat.com/ubi9/python-311:latest
+      WORKDIR /opt/app-root/src
+      COPY requirements.txt .
+      RUN pip install --no-cache-dir -r requirements.txt
+      COPY main.py .
+      EXPOSE 8080
+      CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "2", "--access-logfile", "-", "main:app"]
+    binary: {}
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  triggers:
+    - type: ConfigChange
+---
+apiVersion: image.openshift.io/v1
+kind: ImageStream
+metadata:
+  name: demo-api
+  labels:
+    app: demo-api

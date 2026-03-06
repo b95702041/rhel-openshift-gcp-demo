@@ -1,0 +1,58 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-app
+spec:
+  params:
+    - name: APP_NAME
+      type: string
+      default: demo-api
+  steps:
+    # Step 1: Apply OpenShift manifests
+    - name: apply-manifests
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/bin/bash
+        set -e
+        echo "=== Applying manifests ==="
+        oc apply -f /workspace/source/openshift/deployment.yaml
+        oc apply -f /workspace/source/openshift/service.yaml
+        oc apply -f /workspace/source/openshift/route.yaml
+        echo "=== Manifests applied ==="
+
+    # Step 2: Rollout latest deployment
+    - name: rollout
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/bin/bash
+        set -e
+        echo "=== Rolling out $(params.APP_NAME) ==="
+        oc rollout restart deployment/$(params.APP_NAME)
+        oc rollout status deployment/$(params.APP_NAME) --timeout=120s
+        echo "=== Rollout complete ==="
+
+    # Step 3: Smoke test
+    - name: smoke-test
+      image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+      script: |
+        #!/bin/bash
+        set -e
+        echo "=== Running smoke test ==="
+        ROUTE=$(oc get route $(params.APP_NAME) -o jsonpath='{.spec.host}')
+        echo "Testing https://${ROUTE}/health ..."
+
+        for i in {1..10}; do
+          STATUS=$(curl -sk -o /dev/null -w '%{http_code}' "https://${ROUTE}/health" || true)
+          if [ "$STATUS" = "200" ]; then
+            echo "Smoke test PASSED (attempt $i)"
+            exit 0
+          fi
+          echo "Attempt $i: got $STATUS, retrying in 5s..."
+          sleep 5
+        done
+
+        echo "Smoke test FAILED"
+        exit 1
+
+  workspaces:
+    - name: source
